@@ -1,4 +1,5 @@
-use "Absyn.sml";
+fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
+  | exp2string (Prim2(operation, x, y)) = "Prim2(" ^ operation ^ ", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")";
 
 %%
 
@@ -25,7 +26,7 @@ use "Absyn.sml";
 
 %%
 
-Prog    : Expr                  (print ("result = EXPR \n" ))
+Prog    : Expr                  (print ("result = "^ exp2string(Expr) ^ "\n" ))
 
 Expr    : AtomExpr              (AtomExpr)
         | Expr PLUS Expr        (Prim2("+", Expr, Expr))

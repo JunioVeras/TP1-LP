@@ -10,7 +10,7 @@ fun makeType (args: (plcType * string) list): plcType =
 
 (* Create a function expression. *)
 fun makeFun (f: string, xs: (plcType * string) list, rt: plcType, e1: expr, e2: expr): expr =
-  case xs of
+    case xs of
       [] => Letrec(f, ListT [], "()", rt, e1, e2)
     | (t,x)::[] => Letrec(f, t, x, rt, e1, e2)
     | _ =>
@@ -23,7 +23,7 @@ fun makeFun (f: string, xs: (plcType * string) list, rt: plcType, e1: expr, e2: 
 
 (* Create a Anonymus function expression. *)
 fun makeAnon (xs:(plcType * string) list, e:expr):expr =
-  case xs of
+    case xs of
       [] => Anon(ListT [], "()", e)
     | (t,x)::[] => Anon(t,x,e)
     | _ =>
