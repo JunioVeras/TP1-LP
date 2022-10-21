@@ -1,19 +1,35 @@
 fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
-  | exp2string (Prim2(operation, x, y)) = "Prim2(" ^ operation ^ ", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")";
+  | exp2string (ConB(b)) = "ConB(" ^ Bool.toString(b) ^ ")"
+  | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
+  | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")";
 
 %%
 
 %name PlcParser
 %pos int
 
-%term       NUM of int  |
-            PLUS        |
-            MINUS       |
-            TIMES       |
-            DIV         |
-            OPAR        |
-            CPAR        |
-            EOF
+%left AND
+%left PLUS MINUS
+%left TIMES DIV
+%nonassoc NOT
+
+%term   NUM of int      |
+        PLUS            |
+        MINUS           |
+        TIMES           |
+        DIV             |
+        OPAR            |
+        CPAR            |
+
+        BOOL of bool    |
+        AND             |
+        NOT             |
+
+        HD      |
+        TL      |
+        ISE     |
+
+        EOF
 
 %nonterm    Prog of unit        |
             Expr of expr        |
@@ -29,12 +45,25 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
 Prog    : Expr                  (print ("result = "^ exp2string(Expr) ^ "\n" ))
 
 Expr    : AtomExpr              (AtomExpr)
-        | Expr PLUS Expr        (Prim2("+", Expr, Expr))
-        | Expr MINUS Expr       (Prim2("-", Expr, Expr))
-        | Expr TIMES Expr       (Prim2("*", Expr, Expr))
-        | Expr DIV Expr         (Prim2("/", Expr, Expr))
+        | NOT Expr              (Prim1("!", Expr))
+        | MINUS Expr            (Prim1("~", Expr))
+        | HD Expr               (Prim1("hd", Expr))
+        | TL Expr               (Prim1("tl", Expr))
+        | ISE Expr              (Prim1("ise", Expr))
+        | PRINT Expr            (Prim1("print", Expr))
+        | Expr AND Expr         (Prim2("&&", Expr1, Expr2))
+        | Expr PLUS Expr        (Prim2("+", Expr1, Expr2))
+        | Expr MINUS Expr       (Prim2("-", Expr1, Expr2))
+        | Expr TIMES Expr       (Prim2("*", Expr1, Expr2))
+        | Expr DIV Expr         (Prim2("/", Expr1, Expr2))
+        | Expr EQ Expr          (Prim2("=", Expr1, Expr2))
+        | Expr DIF Expr         (Prim2("!=", Expr1, Expr2))
+        | Expr LESS Expr        (Prim2("<", Expr1, Expr2))
+        | Expr LESSEQ Expr      (Prim2("<=", Expr1, Expr2))
+        | Expr INFIX Expr       (Prim2("::", Expr1, Expr2))
 
 AtomExpr: Const                 (Const)
         | OPAR Expr CPAR        (Expr)
 
-Const   : NUM                   (ConI(NUM))
+Const   : BOOL                  (ConB(BOOL))
+        | NUM                   (ConI(NUM))
