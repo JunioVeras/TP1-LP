@@ -32,22 +32,24 @@ fun init() = ()
 (* DEFINITIONS *)
 %%
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
-    digit   = [0-9];
-    ws      = [\ \t];
-    alpha   = [A-Za-z];
+digit   = [0-9];
+ws      = [\ \t];
+alpha   = [A-Za-z];
 
-(* RULES *)
 %%
-    (* Contabiliza nova linha *)
-    \n       => (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
-    ";"       => (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
-    (* Ignora white space e comentários*)
-    {ws}+    => (lex());
-    \(\*.*\*\) => (lex());
-    (*  *)
-    "+"      => (Tokens.PLUS(!pos,!pos));
-    "*"       => (Tokens.TIMES(!pos,!pos));
-    "-"      => (Tokens.MINUS(!pos,!pos));
-    "/"      => (Tokens.DIV(!pos,!pos));
-    "("      => (Tokens.OPAR(!pos,!pos));
-    ")"      => (Tokens.CPAR(!pos,!pos));
+\n       => (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
+";"      => (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
+
+{ws}+    => (lex());
+\(\*.*\*\) => (lex());
+
+"+"      => (Tokens.PLUS(!pos,!pos));
+"-"      => (Tokens.MINUS(!pos,!pos));
+"*"      => (Tokens.TIMES(!pos,!pos));
+"/"      => (Tokens.DIV(!pos,!pos));
+"("      => (Tokens.OPAR(!pos,!pos));
+")"      => (Tokens.CPAR(!pos,!pos));
+
+{digit}+ => (Tokens.NUM(valOf (Int.fromString yytext), !pos, !pos));
+.        => (error ("ignoring bad character " ^ yytext, !pos, !pos); lex());
+

@@ -1,24 +1,23 @@
-use "Absyn.sml"
+use "Absyn.sml";
 
 %%
 
 %name PlcParser
 %pos int
 
-%term       NUM of int |
-            BOOL of bool |
-            PLUS |
-            MINUS |
-            TIMES |
-            DIV |
-            OPAR |
-            CPAR |
+%term       NUM of int  |
+            PLUS        |
+            MINUS       |
+            TIMES       |
+            DIV         |
+            OPAR        |
+            CPAR        |
             EOF
 
-%nonterm    Prog of unit |
-            Expr of expr |
-            AtomExpr of expr |
-            Const
+%nonterm    Prog of unit        |
+            Expr of expr        |
+            AtomExpr of expr    |
+            Const of expr
 
 %eop EOF
 %noshift EOF
@@ -28,12 +27,13 @@ use "Absyn.sml"
 
 Prog    : Expr                  (print ("result = EXPR \n" ))
 
-Expr    : Expr PLUS Expr        (Prim2("+", Expr, Expr))
+Expr    : AtomExpr              (AtomExpr)
+        | Expr PLUS Expr        (Prim2("+", Expr, Expr))
         | Expr MINUS Expr       (Prim2("-", Expr, Expr))
         | Expr TIMES Expr       (Prim2("*", Expr, Expr))
         | Expr DIV Expr         (Prim2("/", Expr, Expr))
-        | AtomExpr
 
-AtomExpr : Const
+AtomExpr: Const                 (Const)
+        | OPAR Expr CPAR        (Expr)
 
-Const : 
+Const   : NUM                   (ConI(NUM))
