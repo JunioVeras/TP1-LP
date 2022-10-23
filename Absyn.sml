@@ -2,34 +2,34 @@
 
 datatype plcType =
   IntT
-| BoolT
-| FunT of plcType * plcType
-| ListT of plcType list
-| SeqT of plcType;
+  | BoolT
+  | FunT of plcType * plcType
+  | ListT of plcType list
+  | SeqT of plcType;
 
 datatype expr =
   ConI of int
-| ConB of bool
-| ESeq of plcType
-| Var of string
-| Let of string * expr * expr
-| Letrec of string * plcType * string * plcType * expr * expr
-| Prim1 of string * expr
-| Prim2 of string * expr * expr
-| If of expr * expr * expr
-| Match of expr * (expr option * expr) list
-| Call of expr * expr
-| List of expr list
-| Item of int * expr
-| Anon of plcType * string * expr;
+  | ConB of bool
+  | ESeq of plcType
+  | Var of string
+  | Let of string * expr * expr
+  | Letrec of string * plcType * string * plcType * expr * expr
+  | Prim1 of string * expr
+  | Prim2 of string * expr * expr
+  | If of expr * expr * expr
+  | Match of expr * (expr option * expr) list
+  | Call of expr * expr
+  | List of expr list
+  | Item of int * expr
+  | Anon of plcType * string * expr;
 
 
 datatype plcVal =
   BoolV of bool
-| IntV of int
-| ListV of plcVal list
-| SeqV of plcVal list
-| Clos of string * string * expr * plcVal env;
+  | IntV of int
+  | ListV of plcVal list
+  | SeqV of plcVal list
+  | Clos of string * string * expr * plcVal env;
 
 (* Convert a list into a string *)
 fun list2string (conv, l) =
