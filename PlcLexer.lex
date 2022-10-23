@@ -29,6 +29,8 @@ fun getLineAsString() =
 (* Initialize the lexer. *)
 fun init() = ()
 
+(* | OBRACKET Prog CBRACKET (Prog) *)
+
 (* DEFINITIONS *)
 %%
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
@@ -39,7 +41,7 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 
 %%
 \n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
-";"      	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
+";"      	=> (pos := (!pos) + 1; Tokens.SEMI(!pos, !pos));
 
 {ws}+    	=> (lex());
 \(\*.*\*\) 	=> (lex());

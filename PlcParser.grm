@@ -18,17 +18,30 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
         MINUS           |
         TIMES           |
         DIV             |
-        OPAR            |
-        CPAR            |
+        EQ              |
+        DIF             |
+        LESS            |
+        LESSEQ          |
 
         BOOL of bool    |
         AND             |
         NOT             |
 
-        HD      |
-        TL      |
-        ISE     |
+        HD              |
+        TL              |
+        ISE             |
+        INFIX           |
 
+        PRINT           |
+
+        OPAR            |
+        CPAR            |
+        OBRACE          |
+        CBRACE          |
+        OBRACKET        |
+        CBRACKET        |
+
+        SEMI            |
         EOF
 
 %nonterm    Prog of unit        |
@@ -36,8 +49,8 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
             AtomExpr of expr    |
             Const of expr
 
-%eop EOF
-%noshift EOF
+%eop EOF SEMI
+%noshift EOF SEMI
 %start Prog
 
 %%
@@ -61,6 +74,7 @@ Expr    : AtomExpr              (AtomExpr)
         | Expr LESS Expr        (Prim2("<", Expr1, Expr2))
         | Expr LESSEQ Expr      (Prim2("<=", Expr1, Expr2))
         | Expr INFIX Expr       (Prim2("::", Expr1, Expr2))
+        | Expr SEMI Expr        (Prim2(";", Expr1, Expr2))
 
 AtomExpr: Const                 (Const)
         | OPAR Expr CPAR        (Expr)
