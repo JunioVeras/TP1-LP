@@ -35,7 +35,6 @@ datatype plcVal =
 fun list2string (conv, l) =
     case l of
       [] => ""
-    | h::[] => conv(h)
     | h::ts => conv(h) ^ ", " ^ list2string (conv, ts);
 
 (* Convert a plcType into a string *)

@@ -1,6 +1,22 @@
+(* Convert a list into a string *)
+fun myList2string (conv, l) =
+    case l of
+      [] => ""
+    | h::[] => conv(h)
+    | h::ts => conv(h) ^ ", " ^ list2string (conv, ts);
+
+fun myType2string t =
+    case t of
+      BoolT => "BoolT"
+    | IntT => "IntT"
+    | ListT [] => "ListT []"
+    | ListT ts => "ListT([" ^ myList2string (myType2string, ts) ^ "])"
+    | SeqT t1 => "SeqT(" ^ type2string(t1) ^ ")"
+    | FunT (t1, t2) => "FunT(" ^ myType2string(t1) ^ "->" ^ myType2string(t2) ^ ")";
+
 fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (ConB(b)) = "ConB(" ^ Bool.toString(b) ^ ")"
-  | exp2string (ESeq(t)) = "ESeq()"
+  | exp2string (ESeq(t)) = "ESeq(" ^ myType2string(t) ^ ")"
   | exp2string (Var(x)) = "Var(" ^ x ^ ")"
   | exp2string (Let(x, e1, e2)) = "Let()"
   | exp2string (Letrec(f, typeL, d, return, e1, e2)) = "Letrec()"
@@ -9,10 +25,11 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")"
   | exp2string (Match(e, l)) = "Match()"
   | exp2string (Call(arg, e)) = "Call()"
-  | exp2string (List(l)) = "List [" ^ list2string (exp2string, l) ^ "]"
+  | exp2string (List(l)) = "List [" ^ myList2string (exp2string, l) ^ "]"
   | exp2string (Item(i, x)) = "Item(" ^ Int.toString(i) ^ ", " ^ exp2string(x) ^ ")"
   | exp2string (Anon(typeL, d, e)) = "Anon()";
 
+fun getListOfTypes (ListT(l)) = l;
 
 %%
 
@@ -59,6 +76,8 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
         OBRACKET        |
         CBRACKET        |
         SEMI            |
+        COMMA           |
+        ARROW           |
 
         IF              |
         THEN            |
@@ -66,14 +85,21 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
         MATCH           |
         WITH            |
 
-        ARROW           |
+
+        NIL_T           |
+        BOOL_T          |
+        INT_T           |
 
         EOF
 
 %nonterm    Prog of unit        |
             Expr of expr        |
             AtomExpr of expr    |
-            Const of expr
+            Const of expr       |
+            Type of plcType     |
+            AtomType of plcType |
+            Types of plcType
+
 
 %eop EOF
 %noshift EOF
@@ -110,3 +136,20 @@ AtomExpr: Const                 (Const)
 Const   : BOOL                  (ConB(BOOL))
         | NUM                   (ConI(NUM))
         | OPAR CPAR             (List([]))
+        | OPAR Type OBRACE CBRACE CPAR (ESeq(Type))
+
+Type    : AtomType              (AtomType)
+        | OPAR Types CPAR       (Types)
+        | OBRACE Type CBRACE    (SeqT(Type))
+        | Type ARROW Type       (FunT(Type1, Type2))
+
+AtomType: NIL_T                 (ListT [])
+        | BOOL_T                (BoolT)
+        | INT_T                 (IntT)
+        | OPAR Type CPAR        (Type)
+
+Types   : Type COMMA Type       (ListT([Type1, Type2]))
+        | Type COMMA Types      (ListT(Type::(getListOfTypes(Types))))
+
+    (* let val s = "([(Nil, Int, Bool)] [])";
+        val e = ESeq (SeqT (ListT [ListT [], IntT, BoolT])) *)

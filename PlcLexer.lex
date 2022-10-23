@@ -42,6 +42,8 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 %%
 \n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
 ";"      	=> (Tokens.SEMI(!pos, !pos));
+","      	=> (Tokens.COMMA(!pos, !pos));
+"->"      	=> (Tokens.ARROW(!pos, !pos));
 "("      	=> (Tokens.OPAR(!pos,!pos));
 ")"      	=> (Tokens.CPAR(!pos,!pos));
 "["         => (Tokens.OBRACE(!pos,!pos));
@@ -75,6 +77,10 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 
 "true"   	=> (Tokens.BOOL(true, !pos, !pos));
 "false" 	=> (Tokens.BOOL(false, !pos, !pos));
+
+"Nil" 	    => (Tokens.NIL_T(!pos, !pos));
+"Bool" 	    => (Tokens.BOOL_T(!pos, !pos));
+"Int" 	    => (Tokens.INT_T(!pos, !pos));
 
 {digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !pos, !pos));
 .        	=> (error ("ignoring bad character " ^ yytext, !pos, !pos); lex());
