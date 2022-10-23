@@ -1,17 +1,26 @@
 fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (ConB(b)) = "ConB(" ^ Bool.toString(b) ^ ")"
   | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
-  | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")";
+  | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")"
+  | exp2string (Item(i, x)) = "Item(" ^ Int.toString(i) ^ ", " ^ exp2string(x) ^ ")"
+  | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")";
 
 %%
 
 %name PlcParser
 %pos int
 
+%right SEMI ARROW
+%nonassoc IF
+%left ELSE
 %left AND
+%left EQ DIF
+%left LESS LESSEQ
+%left INFIX
 %left PLUS MINUS
 %left TIMES DIV
-%nonassoc NOT
+%nonassoc NOT HD TL ISE PRINT
+%left OBRACE
 
 %term   NUM of int      |
         PLUS            |
@@ -40,8 +49,16 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
         CBRACE          |
         OBRACKET        |
         CBRACKET        |
-
         SEMI            |
+
+        IF              |
+        THEN            |
+        ELSE            |
+        MATCH           |
+        WITH            |
+
+        ARROW           |
+
         EOF
 
 %nonterm    Prog of unit        |
@@ -49,8 +66,8 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
             AtomExpr of expr    |
             Const of expr
 
-%eop EOF SEMI
-%noshift EOF SEMI
+%eop EOF
+%noshift EOF
 %start Prog
 
 %%
@@ -58,6 +75,7 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
 Prog    : Expr                  (print ("result = "^ exp2string(Expr) ^ "\n" ))
 
 Expr    : AtomExpr              (AtomExpr)
+        | IF Expr THEN Expr ELSE Expr (If(Expr1, Expr2, Expr3))
         | NOT Expr              (Prim1("!", Expr))
         | MINUS Expr            (Prim1("~", Expr))
         | HD Expr               (Prim1("hd", Expr))
@@ -75,6 +93,7 @@ Expr    : AtomExpr              (AtomExpr)
         | Expr LESSEQ Expr      (Prim2("<=", Expr1, Expr2))
         | Expr INFIX Expr       (Prim2("::", Expr1, Expr2))
         | Expr SEMI Expr        (Prim2(";", Expr1, Expr2))
+        | Expr OBRACE NUM CBRACE(Item(NUM, Expr))
 
 AtomExpr: Const                 (Const)
         | OPAR Expr CPAR        (Expr)

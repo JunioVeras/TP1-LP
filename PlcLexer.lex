@@ -41,11 +41,22 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 
 %%
 \n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
-";"      	=> (pos := (!pos) + 1; Tokens.SEMI(!pos, !pos));
+";"      	=> (Tokens.SEMI(!pos, !pos));
+"("      	=> (Tokens.OPAR(!pos,!pos));
+")"      	=> (Tokens.CPAR(!pos,!pos));
+"["         => (Tokens.OBRACE(!pos,!pos));
+"]"         => (Tokens.CBRACE(!pos,!pos));
+"{"         => (Tokens.OBRACKET(!pos,!pos));
+"}"         => (Tokens.CBRACKET(!pos,!pos));
 
 {ws}+    	=> (lex());
 \(\*.*\*\) 	=> (lex());
 
+"if"        => (Tokens.IF(!pos,!pos));
+"then"      => (Tokens.THEN(!pos,!pos));
+"else"      => (Tokens.ELSE(!pos,!pos));
+"match"     => (Tokens.MATCH(!pos,!pos));
+"with"      => (Tokens.WITH(!pos,!pos));
 "!"         => (Tokens.NOT(!pos,!pos));
 "hd"        => (Tokens.HD(!pos,!pos));
 "tl"        => (Tokens.TL(!pos,!pos));
@@ -61,13 +72,6 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 "<"      	=> (Tokens.LESS(!pos,!pos));
 "<="     	=> (Tokens.LESSEQ(!pos,!pos));
 "::"     	=> (Tokens.INFIX(!pos,!pos));
-
-"("      	=> (Tokens.OPAR(!pos,!pos));
-")"      	=> (Tokens.CPAR(!pos,!pos));
-"["         => (Tokens.OBRACE(!pos,!pos));
-"]"         => (Tokens.CBRACE(!pos,!pos));
-"{"         => (Tokens.OBRACKET(!pos,!pos));
-"}"         => (Tokens.CBRACKET(!pos,!pos));
 
 "true"   	=> (Tokens.BOOL(true, !pos, !pos));
 "false" 	=> (Tokens.BOOL(false, !pos, !pos));
