@@ -1,9 +1,18 @@
 fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (ConB(b)) = "ConB(" ^ Bool.toString(b) ^ ")"
-  | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
+  | exp2string (ESeq(t)) = "ESeq()"
+  | exp2string (Var(x)) = "Var(" ^ x ^ ")"
+  | exp2string (Let(x, e1, e2)) = "Let()"
+  | exp2string (Letrec(f, typeL, d, return, e1, e2)) = "Letrec()"
   | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")"
+  | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
+  | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")"
+  | exp2string (Match(e, l)) = "Match()"
+  | exp2string (Call(arg, e)) = "Call()"
+  | exp2string (List(l)) = "List [" ^ list2string (exp2string, l) ^ "]"
   | exp2string (Item(i, x)) = "Item(" ^ Int.toString(i) ^ ", " ^ exp2string(x) ^ ")"
-  | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")";
+  | exp2string (Anon(typeL, d, e)) = "Anon()";
+
 
 %%
 
@@ -100,3 +109,4 @@ AtomExpr: Const                 (Const)
 
 Const   : BOOL                  (ConB(BOOL))
         | NUM                   (ConI(NUM))
+        | OPAR CPAR             (List([]))
