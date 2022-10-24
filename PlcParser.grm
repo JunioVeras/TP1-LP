@@ -3,7 +3,7 @@ fun myList2string (conv, l) =
     case l of
       [] => ""
     | h::[] => conv(h)
-    | h::ts => conv(h) ^ ", " ^ list2string (conv, ts);
+    | h::ts => conv(h) ^ ", " ^ myList2string (conv, ts);
 
 fun myType2string t =
     case t of
@@ -11,20 +11,20 @@ fun myType2string t =
     | IntT => "IntT"
     | ListT [] => "ListT []"
     | ListT ts => "ListT([" ^ myList2string (myType2string, ts) ^ "])"
-    | SeqT t1 => "SeqT(" ^ type2string(t1) ^ ")"
-    | FunT (t1, t2) => "FunT(" ^ myType2string(t1) ^ "->" ^ myType2string(t2) ^ ")";
+    | SeqT t1 => "SeqT(" ^ myType2string(t1) ^ ")"
+    | FunT (t1, t2) => "FunT(" ^ myType2string(t1) ^ ", " ^ myType2string(t2) ^ ")";
 
 fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (ConB(b)) = "ConB(" ^ Bool.toString(b) ^ ")"
   | exp2string (ESeq(t)) = "ESeq(" ^ myType2string(t) ^ ")"
-  | exp2string (Var(x)) = "Var(" ^ x ^ ")"
+  | exp2string (Var(x)) = "Var(\"" ^ x ^ "\")"
   | exp2string (Let(x, e1, e2)) = "Let()"
   | exp2string (Letrec(f, typeL, d, return, e1, e2)) = "Letrec()"
   | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")"
   | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
   | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")"
   | exp2string (Match(e, l)) = "Match()"
-  | exp2string (Call(arg, e)) = "Call()"
+  | exp2string (Call(f, arg)) = "Call(" ^ exp2string(f) ^ ", " ^ exp2string(arg) ^ ")"
   | exp2string (List(l)) = "List [" ^ myList2string (exp2string, l) ^ "]"
   | exp2string (Item(i, x)) = "Item(" ^ Int.toString(i) ^ ", " ^ exp2string(x) ^ ")"
   | exp2string (Anon(typeL, d, e)) = "Anon()";
@@ -77,6 +77,8 @@ fun getListOfTypes (ListT(l)) = l;
         CBRACKET        |
         SEMI            |
         COMMA           |
+
+        NAME of string  |
         ARROW           |
 
         IF              |
@@ -84,7 +86,6 @@ fun getListOfTypes (ListT(l)) = l;
         ELSE            |
         MATCH           |
         WITH            |
-
 
         NIL_T           |
         BOOL_T          |
@@ -98,8 +99,8 @@ fun getListOfTypes (ListT(l)) = l;
             Const of expr       |
             Type of plcType     |
             AtomType of plcType |
-            Types of plcType
-
+            Types of plcType    |
+            AppExpr of expr
 
 %eop EOF
 %noshift EOF
@@ -110,6 +111,7 @@ fun getListOfTypes (ListT(l)) = l;
 Prog    : Expr                  (print ("result = "^ exp2string(Expr) ^ "\n" ))
 
 Expr    : AtomExpr              (AtomExpr)
+        | AppExpr               (AppExpr)
         | IF Expr THEN Expr ELSE Expr (If(Expr1, Expr2, Expr3))
         | NOT Expr              (Prim1("!", Expr))
         | MINUS Expr            (Prim1("~", Expr))
@@ -132,6 +134,10 @@ Expr    : AtomExpr              (AtomExpr)
 
 AtomExpr: Const                 (Const)
         | OPAR Expr CPAR        (Expr)
+        | NAME                  (Var(NAME))
+
+AppExpr : AtomExpr AtomExpr     (Call(AtomExpr1, AtomExpr2))
+        | AppExpr AtomExpr      (Call(AppExpr, AtomExpr))
 
 Const   : BOOL                  (ConB(BOOL))
         | NUM                   (ConI(NUM))
@@ -150,6 +156,3 @@ AtomType: NIL_T                 (ListT [])
 
 Types   : Type COMMA Type       (ListT([Type1, Type2]))
         | Type COMMA Types      (ListT(Type::(getListOfTypes(Types))))
-
-    (* let val s = "([(Nil, Int, Bool)] [])";
-        val e = ESeq (SeqT (ListT [ListT [], IntT, BoolT])) *)

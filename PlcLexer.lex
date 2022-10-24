@@ -36,14 +36,12 @@ fun init() = ()
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
 digit   = [0-9];
 ws      = [\ \t];
-alpha   = [A-Za-z];
-reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl|true|var|with|__];
+name   = [A-Za-z_][A-Za-z_0-9]*^[__];
 
 %%
 \n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
 ";"      	=> (Tokens.SEMI(!pos, !pos));
 ","      	=> (Tokens.COMMA(!pos, !pos));
-"->"      	=> (Tokens.ARROW(!pos, !pos));
 "("      	=> (Tokens.OPAR(!pos,!pos));
 ")"      	=> (Tokens.CPAR(!pos,!pos));
 "["         => (Tokens.OBRACE(!pos,!pos));
@@ -82,6 +80,16 @@ reserved = [Bool|else|end|false|fn|fun|hd|if|Int|ise|match|Nil|print|rec|then|tl
 "Bool" 	    => (Tokens.BOOL_T(!pos, !pos));
 "Int" 	    => (Tokens.INT_T(!pos, !pos));
 
+"fn"      	=> (Tokens.FN(!pos, !pos));
+"fun"      	=> (Tokens.FUN(!pos, !pos));
+"end"      	=> (Tokens.END(!pos, !pos));
+"rec"      	=> (Tokens.REC(!pos, !pos));
+"->"      	=> (Tokens.ARROW(!pos, !pos));
+
+"__"        => (lex());
+"var"      	=> (Tokens.VAR(!pos, !pos));
+
+{name}      => (Tokens.NAME(yytext, !pos, !pos));
 {digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !pos, !pos));
 .        	=> (error ("ignoring bad character " ^ yytext, !pos, !pos); lex());
 
