@@ -94,6 +94,7 @@ fun convertDecl (varDecl(name, e)) Prog = Let(name, e, Prog)
         BAR             |
         EMPTY           |
         COLON           |
+        ANON_ARROW      |
 
         IF              |
         THEN            |
@@ -161,8 +162,10 @@ Expr    : AtomExpr              (AtomExpr)
 
 AtomExpr: Const                 (Const)
         | NAME                  (Var(NAME))
+        | OBRACKET Prog CBRACKET(Prog)
         | OPAR Expr CPAR        (Expr)
         | OPAR Comps CPAR       (Comps)
+        | FN Args ANON_ARROW Expr END (makeAnon(Args, Expr))
 
 AppExpr : AtomExpr AtomExpr     (Call(AtomExpr1, AtomExpr2))
         | AppExpr AtomExpr      (Call(AppExpr, AtomExpr))

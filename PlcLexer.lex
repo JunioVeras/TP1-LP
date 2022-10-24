@@ -29,8 +29,6 @@ fun getLineAsString() =
 (* Initialize the lexer. *)
 fun init() = ()
 
-(* | OBRACKET Prog CBRACKET (Prog) *)
-
 (* DEFINITIONS *)
 %%
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
@@ -88,10 +86,10 @@ name   = [A-Za-z_][A-Za-z_0-9]*;
 "|"         => (Tokens.BAR(!pos, !pos));
 "_"         => (Tokens.EMPTY(!pos, !pos));
 ":"         => (Tokens.COLON(!pos, !pos));
+"=>"      	=> (Tokens.ANON_ARROW(!pos, !pos));
 
 "var"      	=> (Tokens.VAR(!pos, !pos));
 
 {name}      => (Tokens.NAME(yytext, !pos, !pos));
 {digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !pos, !pos));
 .        	=> (error ("ignoring bad character " ^ yytext, !pos, !pos); lex());
-
