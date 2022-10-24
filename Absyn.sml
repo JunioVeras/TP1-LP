@@ -1,18 +1,19 @@
 (*Absyn*)
 
 datatype plcType =
-  IntT
+    IntT
   | BoolT
   | FunT of plcType * plcType
   | ListT of plcType list
   | SeqT of plcType;
 
 datatype expr =
-  ConI of int
+    ConI of int
   | ConB of bool
   | ESeq of plcType
   | Var of string
   | Let of string * expr * expr
+  (* Nome fun, tipo arg, nome arg, return type, corpo, onde é chamada*)
   | Letrec of string * plcType * string * plcType * expr * expr
   | Prim1 of string * expr
   | Prim2 of string * expr * expr
@@ -21,8 +22,8 @@ datatype expr =
   | Call of expr * expr
   | List of expr list
   | Item of int * expr
+  (* Tipo arg, nome das variaveis (() - nada, x - a variavel, $list - varios args, corpo) *)
   | Anon of plcType * string * expr;
-
 
 datatype plcVal =
   BoolV of bool

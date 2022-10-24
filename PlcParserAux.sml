@@ -3,17 +3,17 @@
 (* Creat the body of a function expression. *)
 fun makeFunAux (n: int, xs: (plcType * string) list, e: expr): expr =
     case xs of
-        ([]) => e
-      | ((t, x)::tl) => Let(x, Item(n, Var "$list"), makeFunAux(n+1, tl, e));
+      ([]) => e
+    | ((t, x)::tl) => Let(x, Item(n, Var "$list"), makeFunAux(n + 1, tl, e));
 
 (* Create the list of arguments of a function. *)
 fun makeType (args: (plcType * string) list): plcType =
-  let
-    fun doListT([]) = []
-      | doListT((t, x)::tl) = t::doListT(tl);
-  in
-    ListT (doListT(args))
-  end;
+    let
+      fun doListT([]) = []
+        | doListT((t, x)::tl) = t::doListT(tl);
+    in
+      ListT (doListT(args))
+    end;
 
 (* Create a function expression. *)
 fun makeFun (f: string, xs: (plcType * string) list, rt: plcType, e1: expr, e2: expr): expr =

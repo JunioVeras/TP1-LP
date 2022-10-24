@@ -36,7 +36,7 @@ fun init() = ()
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
 digit   = [0-9];
 ws      = [\ \t];
-name   = [A-Za-z_][A-Za-z_0-9]*^[__];
+name   = [A-Za-z_][A-Za-z_0-9]*;
 
 %%
 \n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
@@ -85,8 +85,10 @@ name   = [A-Za-z_][A-Za-z_0-9]*^[__];
 "end"      	=> (Tokens.END(!pos, !pos));
 "rec"      	=> (Tokens.REC(!pos, !pos));
 "->"      	=> (Tokens.ARROW(!pos, !pos));
+"|"         => (Tokens.BAR(!pos, !pos));
+"_"         => (Tokens.EMPTY(!pos, !pos));
+":"         => (Tokens.COLON(!pos, !pos));
 
-"__"        => (lex());
 "var"      	=> (Tokens.VAR(!pos, !pos));
 
 {name}      => (Tokens.NAME(yytext, !pos, !pos));
