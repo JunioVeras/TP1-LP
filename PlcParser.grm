@@ -27,9 +27,14 @@ fun exp2string (ConI(i)) = "ConI(" ^ Int.toString(i) ^ ")"
   | exp2string (Prim1(operation, x)) = "Prim1(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ")"
   | exp2string (Prim2(operation, x, y)) = "Prim2(\"" ^ operation ^ "\", " ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ")"
   | exp2string (If(x, y, z)) = "If(" ^ exp2string(x) ^ ", " ^ exp2string(y) ^ ", " ^ exp2string(z) ^ ")"
-  | exp2string (Match(e, l)) = "Match()"
+  | exp2string (Match(e, l)) = (
+        let fun options2string (SOME(e1), e) = "(SOME(" ^ exp2string(e1) ^ "), " ^ exp2string(e) ^ ")"
+              | options2string (NONE, e) = "(NONE, " ^ exp2string(e) ^ ")"
+        in 
+              "Match(" ^ exp2string(e) ^ ", [" ^ myList2string(options2string , l) ^ "])"
+        end)
   | exp2string (Call(f, arg)) = "Call(" ^ exp2string(f) ^ ", " ^ exp2string(arg) ^ ")"
-  | exp2string (List(l)) = "List([" ^ myList2string (exp2string, l) ^ "])"
+  | exp2string (List(l)) = "List([" ^ myList2string(exp2string, l) ^ "])"
   | exp2string (Item(i, x)) = "Item(" ^ Int.toString(i) ^ ", " ^ exp2string(x) ^ ")"
   | exp2string (Anon(typeL, name, e)) = "Anon(" ^ myType2string(typeL) ^ ", \"" ^ name ^ "\", " ^ exp2string(e) ^ ")";
 
@@ -119,9 +124,11 @@ fun convertDecl (varDecl(name, e)) Prog = Let(name, e, Prog)
             Types of plcType    |
             AppExpr of expr     |
             Comps of expr       |
-            Args of (plcType * string) list|
-            TypedVar of (plcType * string)|
-            Params of (plcType * string) list
+            Args of (plcType * string) list             |
+            TypedVar of (plcType * string)              |
+            Params of (plcType * string) list           |
+            MatchExpr of (expr option * expr) list      |
+            CondExpr of expr option
 
 %eop EOF
 %noshift EOF
@@ -141,6 +148,7 @@ Decl    : VAR NAME EQ Expr      (varDecl(NAME, Expr))
 Expr    : AtomExpr              (AtomExpr)
         | AppExpr               (AppExpr)
         | IF Expr THEN Expr ELSE Expr (If(Expr1, Expr2, Expr3))
+        | MATCH Expr WITH MatchExpr (Match(Expr, MatchExpr))
         | NOT Expr              (Prim1("!", Expr))
         | MINUS Expr            (Prim1("~", Expr))
         | HD Expr               (Prim1("hd", Expr))
@@ -177,6 +185,12 @@ Const   : BOOL                  (ConB(BOOL))
 
 Comps   : Expr COMMA Expr       (List([Expr1, Expr2]))
         | Expr COMMA Comps      (List(Expr::(let val List(l) = Comps in l end)))
+
+MatchExpr:END                   ([])
+        | BAR CondExpr ARROW Expr MatchExpr ((CondExpr, Expr)::MatchExpr)
+
+CondExpr: Expr                  (SOME(Expr))
+        | EMPTY                 (NONE)
 
 Args    : OPAR CPAR             ([])
         | OPAR Params CPAR      (Params)
