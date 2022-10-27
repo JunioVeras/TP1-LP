@@ -10,7 +10,7 @@ type lexresult = (slvalue, pos)token
 
 (* Define what to do when the end of the file is reached. *)
 val pos = ref 0
-fun eof () = Tokens.EOF(!pos,!pos)
+fun eof () = Tokens.EOF(0,0)
 
 (* A function to print a message error on the screen. *)
 fun error (e,l : int,_) = TextIO.output (TextIO.stdOut, String.concat[
