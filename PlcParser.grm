@@ -53,7 +53,7 @@ fun convertDecl (varDecl(name, e)) Prog = Let(name, e, Prog)
 %left AND
 %left EQ DIF
 %left LESS LESSEQ
-%left INFIX
+%right INFIX
 %left PLUS MINUS
 %left TIMES DIV
 %nonassoc NOT HD TL ISE PRINT
@@ -113,7 +113,7 @@ fun convertDecl (varDecl(name, e)) Prog = Let(name, e, Prog)
 
         EOF
 
-%nonterm    Start of unit       |
+%nonterm    Start of expr       |
             Prog of expr        |
             Decl of decl        |
             Expr of expr        |
@@ -136,7 +136,7 @@ fun convertDecl (varDecl(name, e)) Prog = Let(name, e, Prog)
 
 %%
 
-Start   : Prog                  (print ("result = " ^ exp2string Prog ^ "\n" ))
+Start   : Prog                  (Prog)
 
 Prog    : Expr                  (Expr)
         | Decl SEMI Prog        (convertDecl Decl Prog)

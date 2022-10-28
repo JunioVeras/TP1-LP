@@ -12,9 +12,7 @@ use "PlcParser.grm.sig";
 use "PlcParser.grm.sml";
 use "PlcLexer.lex.sml";
 
-use "personalParse.sml";
-
-(* use "Parse.sml"; *)
+use "Parse.sml";
 
 Control.Print.printLength := 1000;
 Control.Print.printDepth  := 1000;
@@ -35,7 +33,12 @@ fromString "fun f(Int x) = x; f(1)";
 fromString "match x with | 0 -> 1| _ -> -1 end";
 fromFile ("example.plc");
 
-use "testParserCases.sml"
+use "testParserCases.sml";
 
 (* Try to add a systematic way of using the test cases in
    testParserCases to stress test your parser *)
+
+exception PrintError;
+fun test ((code, ast)::t) = fromString code = ast;
+
+test cases;
