@@ -9,7 +9,7 @@ type ('a,'b) token = ('a,'b) Tokens.token
 type lexresult = (slvalue, pos)token
 
 (* Define what to do when the end of the file is reached. *)
-val pos = ref 0
+val posi = ref 0
 fun eof () = Tokens.EOF(0,0)
 
 (* A function to print a message error on the screen. *)
@@ -35,61 +35,62 @@ fun init() = ()
 digit   = [0-9];
 ws      = [\ \t];
 name   = [A-Za-z_][A-Za-z_0-9]*;
+comment = \(\*[.|\n]*\*\);
 
 %%
-\n       	=> (pos := (!pos) + 1; lex());
-";"      	=> (Tokens.SEMI(!pos, !pos));
-","      	=> (Tokens.COMMA(!pos, !pos));
-"("      	=> (Tokens.OPAR(!pos,!pos));
-")"      	=> (Tokens.CPAR(!pos,!pos));
-"["         => (Tokens.OBRACE(!pos,!pos));
-"]"         => (Tokens.CBRACE(!pos,!pos));
-"{"         => (Tokens.OBRACKET(!pos,!pos));
-"}"         => (Tokens.CBRACKET(!pos,!pos));
+\n       	=> (lineNumber := (!lineNumber) + 1; lex());
+{comment}   => (lex());
+";"      	=> (Tokens.SEMI(!posi, !posi));
+","      	=> (Tokens.COMMA(!posi, !posi));
+"("      	=> (Tokens.OPAR(!posi,!posi));
+")"      	=> (Tokens.CPAR(!posi,!posi));
+"["         => (Tokens.OBRACE(!posi,!posi));
+"]"         => (Tokens.CBRACE(!posi,!posi));
+"{"         => (Tokens.OBRACKET(!posi,!posi));
+"}"         => (Tokens.CBRACKET(!posi,!posi));
 
 {ws}+    	=> (lex());
-\(\*.*\*\) 	=> (lex());
 
-"if"        => (Tokens.IF(!pos,!pos));
-"then"      => (Tokens.THEN(!pos,!pos));
-"else"      => (Tokens.ELSE(!pos,!pos));
-"match"     => (Tokens.MATCH(!pos,!pos));
-"with"      => (Tokens.WITH(!pos,!pos));
-"!"         => (Tokens.NOT(!pos,!pos));
-"hd"        => (Tokens.HD(!pos,!pos));
-"tl"        => (Tokens.TL(!pos,!pos));
-"ise"       => (Tokens.ISE(!pos,!pos));
-"print"     => (Tokens.PRINT(!pos,!pos));
-"&&"        => (Tokens.AND(!pos,!pos));
-"+"      	=> (Tokens.PLUS(!pos,!pos));
-"-"      	=> (Tokens.MINUS(!pos,!pos));
-"*"      	=> (Tokens.TIMES(!pos,!pos));
-"/"      	=> (Tokens.DIV(!pos,!pos));
-"="      	=> (Tokens.EQ(!pos,!pos));
-"!="     	=> (Tokens.DIF(!pos,!pos));
-"<"      	=> (Tokens.LESS(!pos,!pos));
-"<="     	=> (Tokens.LESSEQ(!pos,!pos));
-"::"     	=> (Tokens.INFIX(!pos,!pos));
+"if"        => (Tokens.IF(!posi,!posi));
+"then"      => (Tokens.THEN(!posi,!posi));
+"else"      => (Tokens.ELSE(!posi,!posi));
+"match"     => (Tokens.MATCH(!posi,!posi));
+"with"      => (Tokens.WITH(!posi,!posi));
+"!"         => (Tokens.NOT(!posi,!posi));
+"hd"        => (Tokens.HD(!posi,!posi));
+"tl"        => (Tokens.TL(!posi,!posi));
+"ise"       => (Tokens.ISE(!posi,!posi));
+"print"     => (Tokens.PRINT(!posi,!posi));
+"&&"        => (Tokens.AND(!posi,!posi));
+"+"      	=> (Tokens.PLUS(!posi,!posi));
+"-"      	=> (Tokens.MINUS(!posi,!posi));
+"*"      	=> (Tokens.TIMES(!posi,!posi));
+"/"      	=> (Tokens.DIV(!posi,!posi));
+"="      	=> (Tokens.EQ(!posi,!posi));
+"!="     	=> (Tokens.DIF(!posi,!posi));
+"<"      	=> (Tokens.LESS(!posi,!posi));
+"<="     	=> (Tokens.LESSEQ(!posi,!posi));
+"::"     	=> (Tokens.INFIX(!posi,!posi));
 
-"true"   	=> (Tokens.BOOL(true, !pos, !pos));
-"false" 	=> (Tokens.BOOL(false, !pos, !pos));
+"true"   	=> (Tokens.BOOL(true, !posi, !posi));
+"false" 	=> (Tokens.BOOL(false, !posi, !posi));
 
-"Nil" 	    => (Tokens.NIL_T(!pos, !pos));
-"Bool" 	    => (Tokens.BOOL_T(!pos, !pos));
-"Int" 	    => (Tokens.INT_T(!pos, !pos));
+"Nil" 	    => (Tokens.NIL_T(!posi, !posi));
+"Bool" 	    => (Tokens.BOOL_T(!posi, !posi));
+"Int" 	    => (Tokens.INT_T(!posi, !posi));
 
-"fn"      	=> (Tokens.FN(!pos, !pos));
-"fun"      	=> (Tokens.FUN(!pos, !pos));
-"end"      	=> (Tokens.END(!pos, !pos));
-"rec"      	=> (Tokens.REC(!pos, !pos));
-"->"      	=> (Tokens.ARROW(!pos, !pos));
-"|"         => (Tokens.BAR(!pos, !pos));
-"_"         => (Tokens.EMPTY(!pos, !pos));
-":"         => (Tokens.COLON(!pos, !pos));
-"=>"      	=> (Tokens.ANON_ARROW(!pos, !pos));
+"fn"      	=> (Tokens.FN(!posi, !posi));
+"fun"      	=> (Tokens.FUN(!posi, !posi));
+"end"      	=> (Tokens.END(!posi, !posi));
+"rec"      	=> (Tokens.REC(!posi, !posi));
+"->"      	=> (Tokens.ARROW(!posi, !posi));
+"|"         => (Tokens.BAR(!posi, !posi));
+"_"         => (Tokens.EMPTY(!posi, !posi));
+":"         => (Tokens.COLON(!posi, !posi));
+"=>"      	=> (Tokens.ANON_ARROW(!posi, !posi));
 
-"var"      	=> (Tokens.VAR(!pos, !pos));
+"var"      	=> (Tokens.VAR(!posi, !posi));
 
-{name}      => (Tokens.NAME(yytext, !pos, !pos));
-{digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !pos, !pos));
-.        	=> (error ("ignoring bad character " ^ yytext, !pos, !pos); lex());
+{name}      => (Tokens.NAME(yytext, !posi, !posi));
+{digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !posi, !posi));
+.        	=> (error ("ignoring bad character " ^ yytext, !posi, !posi); lex());
