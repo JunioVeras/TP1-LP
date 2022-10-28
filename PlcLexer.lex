@@ -37,7 +37,7 @@ ws      = [\ \t];
 name   = [A-Za-z_][A-Za-z_0-9]*;
 
 %%
-\n       	=> (pos := (!pos) + 1; Tokens.EOF(!pos, !pos));
+\n       	=> (pos := (!pos) + 1; lex());
 ";"      	=> (Tokens.SEMI(!pos, !pos));
 ","      	=> (Tokens.COMMA(!pos, !pos));
 "("      	=> (Tokens.OPAR(!pos,!pos));
