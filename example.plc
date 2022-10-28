@@ -7,5 +7,4 @@ fun rec f(Int n):Int =
 (* glory and wealth
    power of Rome
    built on the shoulders of millions of slaves :( *)
-
 f(5)

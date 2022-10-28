@@ -9,8 +9,17 @@ type ('a,'b) token = ('a,'b) Tokens.token
 type lexresult = (slvalue, pos)token
 
 (* Define what to do when the end of the file is reached. *)
+val commentNextingLevel = ref 0;
 val posi = ref 0
-fun eof () = Tokens.EOF(0,0)
+fun eof () =
+   let
+     val CNL = !commentNextingLevel
+   in
+     if CNL = 0 then
+       Tokens.EOF(0,0)
+  else
+      (TextIO.output(TextIO.stdOut, "\n*** Unfinished Commentary! ***\n");raise Fail("Unfinished commentary."))
+  end
 
 (* A function to print a message error on the screen. *)
 fun error (e,l : int,_) = TextIO.output (TextIO.stdOut, String.concat[
@@ -36,9 +45,13 @@ digit   = [0-9];
 ws      = [\ \t];
 name   = [A-Za-z_][A-Za-z_0-9]*;
 comment = \(\*[.|\n]*\*\);
+commentNF = \(\*(.*?)\n;
+commentF = \*\);
 
 %%
 \n       	=> (lineNumber := (!lineNumber) + 1; lex());
+{commentF}   => (commentNextingLevel := 0;lex());
+{commentNF}   => (commentNextingLevel := 1;lex());
 {comment}   => (lex());
 ";"      	=> (Tokens.SEMI(!posi, !posi));
 ","      	=> (Tokens.COMMA(!posi, !posi));
