@@ -44,15 +44,14 @@ fun init() = ()
 digit   = [0-9];
 ws      = [\ \t];
 name   = [A-Za-z_][A-Za-z_0-9]*;
-comment = \(\*[.|\n]*\*\);
-commentNF = \(\*(.*?)\n;
-commentF = \*\);
+comment = \(\*(.|\n)*\*\);
+commentNF = \(\*(.|\n)*;
 
 %%
 \n       	=> (lineNumber := (!lineNumber) + 1; lex());
-{commentF}   => (commentNextingLevel := 0;lex());
-{commentNF}   => (commentNextingLevel := 1;lex());
+
 {comment}   => (lex());
+
 ";"      	=> (Tokens.SEMI(!posi, !posi));
 ","      	=> (Tokens.COMMA(!posi, !posi));
 "("      	=> (Tokens.OPAR(!posi,!posi));
@@ -106,4 +105,5 @@ commentF = \*\);
 
 {name}      => (Tokens.NAME(yytext, !posi, !posi));
 {digit}+ 	=> (Tokens.NUM(valOf (Int.fromString yytext), !posi, !posi));
+
 .        	=> (error ("ignoring bad character " ^ yytext, !posi, !posi); lex());
